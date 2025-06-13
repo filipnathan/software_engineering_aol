@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply Plus Jakarta Sans globally */
+body {
+  @apply font-jakarta;
+  @apply bg-[#E4E4E4];
+}
