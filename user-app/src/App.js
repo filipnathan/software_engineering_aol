@@ -10,6 +10,10 @@ import HomePage from "./pages/HomePage";
 import OrdersPage from "./pages/OrdersPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import ContactUsPage from "./pages/ContactUsPage";
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import GoogleAuth from './pages/GoogleAuth';
+import RecoverPassword from './pages/RecoverPassword';
 
 function App() {
   return (
@@ -26,6 +30,10 @@ function App() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/medicines" element={<MedicinesPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/auth/google" element={<GoogleAuth />} />
+          <Route path="/recover" element={<RecoverPassword />} />
         </Routes>
       </main>
     </Router>
