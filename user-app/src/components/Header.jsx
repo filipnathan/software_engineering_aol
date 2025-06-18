@@ -80,12 +80,27 @@ export default function Header() {
             Contact Us
           </NavLink>
 
-          {/* ✅ Profile Icon now links to /profile */}
-          <Link to="/profile" title="Profile">
-            <span className="material-symbols-outlined text-3xl text-blue-700 hover:text-blue-800 transition">
-              account_circle
-            </span>
-          </Link>
+          {/* Profile Icon - only shown when logged in */}
+          {isLoggedIn && (
+            <Link to="/profile" title="Profile">
+              <span className="material-symbols-outlined text-3xl text-blue-700 hover:text-blue-800 transition">
+                account_circle
+              </span>
+            </Link>
+          )}
+
+          {/* 🔴 Logout Button - only shown when logged in */}
+          {isLoggedIn && (
+            <button
+              onClick={() => {
+                localStorage.removeItem("authToken");
+                window.location.href = "/login";
+              }}
+              className="bg-red-500 text-white rounded-full px-4 py-1 text-sm font-medium hover:bg-red-600 transition"
+            >
+              Logout
+            </button>
+          )}
         </nav>
       </div>
     </header>

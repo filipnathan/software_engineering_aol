@@ -77,6 +77,24 @@ const products = [
 
 const MedicinesPage = () => {
   const navigate = useNavigate();
+
+  const handleAddToCart = async (product) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(product),
+      });
+      const data = await res.json();
+      alert(data.message || "Added to cart!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to cart.");
+    }
+  };
+
   return (
     <div className="in-h-screen bg-gray-100 flex flex-col items-center">
       <button
@@ -115,12 +133,18 @@ const MedicinesPage = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((prod, index) => (
-              <div key={index} className="bg-white p-4 shadow rounded text-center">
-                <img src={prod.image} alt={prod.name} className="h-28 mx-auto mb-2" />
-                <p className="font-semibold">{prod.name}</p>
-                <p className="text-sm text-gray-600">★ ★ ★ ★ ☆</p>
-                <p className="text-sm">{prod.price}</p>
-              </div>
+            <div key={index} className="bg-white p-4 shadow rounded text-center">
+            <img src={prod.image} alt={prod.name} className="h-28 mx-auto mb-2" />
+            <p className="font-semibold">{prod.name}</p>
+            <p className="text-sm text-gray-600">★ ★ ★ ★ ☆</p>
+            <p className="text-sm mb-2">{prod.price}</p>
+            <button
+            onClick={() => handleAddToCart(prod)}
+            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+            >
+            Add to Cart
+            </button>
+            </div>
             ))}
           </div>
 

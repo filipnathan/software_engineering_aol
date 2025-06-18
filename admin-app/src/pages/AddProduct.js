@@ -35,11 +35,35 @@ const AddProduct = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // This is where the product would be saved to context, localStorage, or API
-    alert("Product added:\n" + JSON.stringify(form, null, 2));
-    navigate("/products");
-  };
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        ...form,
+        price: parseFloat(form.price),
+        stock: parseInt(form.stock),
+        discount: parseFloat(form.discount || 0),
+        images,
+      };
+
+      const response = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Product added successfully!");
+        navigate("/products");
+      } else {
+        alert(data.error || "Failed to add product");
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      alert("An error occurred while adding the product.");
+    }
+  };    
 
   return (
     <div className="space-y-6">
