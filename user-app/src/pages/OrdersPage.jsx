@@ -1,10 +1,5 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
-
-const orders = [
-  { id: 'A003', date: '20/5/2025', payment: 'Debit', status: 'Delivered' },
-  { id: 'A002', date: '11/1/2025', payment: 'QRIS', status: 'Completed' },
-  { id: 'A001', date: '4/11/2024', payment: 'Debit', status: 'Completed' }
-]
 
 const statusStyles = {
   Delivered: 'bg-yellow-400 text-white',
@@ -12,6 +7,15 @@ const statusStyles = {
 }
 
 export default function OrdersPage() {
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+  fetch("http://localhost:5000/api/orders")
+    .then(res => res.json())
+    .then(data => setOrders(data))
+    .catch(err => console.error("Failed to load orders", err));
+  }, []);
+
   return (
     <div className="px-6 py-8 max-w-6xl mx-auto">
       <div className="mb-6">
@@ -33,9 +37,9 @@ export default function OrdersPage() {
             </thead>
             <tbody>
               {orders.map(order => (
-                <tr key={order.id} className="border-t hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium">{order.id}</td>
-                  <td className="px-6 py-4">{order.date}</td>
+                <tr key={order._id} className="border-t hover:bg-gray-50">
+                  <td className="px-6 py-4 font-medium">{order._id}</td>
+                  <td className="px-6 py-4">{new Date(order.date).toLocaleDateString()}</td>
                   <td className="px-6 py-4">{order.payment}</td>
                   <td className="px-6 py-4">
                     <span className={`text-xs px-3 py-1 rounded-full font-semibold ${statusStyles[order.status]}`}>
@@ -44,7 +48,7 @@ export default function OrdersPage() {
                   </td>
                   <td className="px-6 py-4">
                     <Link
-                        to={`/orders/${order.id}`}
+                        to={`/orders/${order._id}`}
                         className="text-blue-600 text-sm hover:underline"
                         >
                         View Details

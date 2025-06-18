@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { CalendarDays, MoreHorizontal } from 'lucide-react';
-
-const orders = [
-  { id: '#AA01', name: 'Enrico Navarro', payment: 'QRIS', type: 'Gosend', status: 'On Progress', total: 320000 },
-  { id: '#AA02', name: 'Enrico Navarro', payment: 'QRIS', type: 'Oxy Delivery', status: 'Delivered', total: 450000 },
-  { id: '#AA03', name: 'Enrico Navarro', payment: 'QRIS', type: 'Gosend', status: 'Completed', total: 450000 },
-  { id: '#AA04', name: 'Enrico Navarro', payment: 'QRIS', type: 'Oxy Delivery', status: 'Delivered', total: 450000 },
-  // repeat as needed
-];
+import { Trash2 } from 'lucide-react';
 
 const statusClasses = {
   'On Progress': 'bg-red-100 text-red-600',
   'Delivered': 'bg-yellow-100 text-yellow-600',
   'Completed': 'bg-green-100 text-green-600',
+  'Processing': 'bg-blue-100 text-blue-600', 
 };
 
 export default function OrderHistory() {
+  const [orders, setOrders] = useState([]);
+
   const [selectedTab, setSelectedTab] = useState('All Orders');
   const [fromDate, setFromDate] = useState(new Date(2025, 2, 24));
   const [toDate, setToDate] = useState(new Date(2025, 2, 31));
@@ -24,6 +20,41 @@ export default function OrderHistory() {
   const renderStatus = (status) => (
     <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusClasses[status]}`}>{status}</span>
   );
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/orders")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched orders:", data);
+        setOrders(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch orders:", err);
+      });
+  }, []);
+
+  const handleDelete = async (orderId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Delete failed:", errorData);
+        throw new Error("Failed to delete order");
+      }
+
+      setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete order");
+    }
+  };
+
 
   return (
     <div className="p-6">
@@ -77,21 +108,28 @@ export default function OrderHistory() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, idx) => (
-              <tr key={idx} className="border-b">
-                <td className="px-4 py-2 font-medium">{order.id}</td>
-                <td className="px-4 py-2">{order.name}</td>
-                <td className="px-4 py-2">{order.payment}</td>
-                <td className="px-4 py-2">{order.type}</td>
-                <td className="px-4 py-2">{renderStatus(order.status)}</td>
-                <td className="px-4 py-2">Rp{order.total.toLocaleString()}</td>
-                <td className="px-4 py-2">
-                  <button className="p-2 hover:bg-gray-200 rounded-full">
-                    <MoreHorizontal size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {orders.map((order, idx) => {
+              const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+              return (
+                <tr key={idx} className="border-b">
+                  <td className="px-4 py-2 font-medium">#{order._id.slice(-4).toUpperCase()}</td>
+                  <td className="px-4 py-2">User</td> {/*not yet added*/}
+                  <td className="px-4 py-2">{order.payment}</td>
+                  <td className="px-4 py-2">{order.items.length > 1 ? 'Mixed Items' : order.items[0]?.name}</td>
+                  <td className="px-4 py-2">{renderStatus(order.status)}</td>
+                  <td className="px-4 py-2">Rp{total.toLocaleString()}</td>
+                  <td className="px-4 py-2">
+                    <button
+                      className="p-2 hover:bg-red-100 text-red-600 rounded-full"
+                      onClick={() => handleDelete(order._id)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

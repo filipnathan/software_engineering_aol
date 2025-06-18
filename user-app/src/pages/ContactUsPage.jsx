@@ -14,19 +14,36 @@ export default function ContactUsPage() {
 
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    console.log('📨 Form submitted:', form)
+    try {
+      const res = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    setSubmitted(true)
-    setForm({
-      name: '',
-      email: '',
-      message: ''
-    })
+      if (!res.ok) {
+      const errorData = await res.json();
+      alert(`❌ ${errorData.error}`);
+      return;
+      }
 
-    setTimeout(() => setSubmitted(false), 3000)
+      console.log('📨 Form submitted:', form)
+      setSubmitted(true)
+      setForm({
+        name: '',
+        email: '',
+        message: ''
+      })
+      setTimeout(() => setSubmitted(false), 3000)
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      alert("Failed to send message. Try again.");
+    }
   }
 
   return (
